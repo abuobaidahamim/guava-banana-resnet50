@@ -17,7 +17,7 @@ MODEL_PATH = "ResNet50_Guava_Banana_Best.keras"
 
 @st.cache_resource
 def load_model():
-    return tf.keras.models.load_model(MODEL_PATH)
+    return tf.keras.models.load_model(MODEL_PATH, compile=False)
 
 model = load_model()
 
