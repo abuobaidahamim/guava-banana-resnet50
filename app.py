@@ -13,7 +13,7 @@ st.set_page_config(
 st.title("🍈 Fruit Freshness Classification")
 st.write("ResNet50-based freshness classification")
 
-MODEL_PATH = "ResNet50_Guava_Banana_Best.keras"
+MODEL_PATH = "ResNet50_Guava_Banana_Best.h5"
 
 @st.cache_resource
 def load_model():
