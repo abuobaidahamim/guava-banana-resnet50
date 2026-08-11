@@ -15,8 +15,6 @@ st.set_page_config(
     layout="centered"
 )
 
-ARCHITECTURE_PATH = "ResNet50_Guava_Banana_Architecture.json"
-WEIGHTS_PATH = "ResNet50_Guava_Banana_Weights.weights.h5"
 
 # IMPORTANT:
 # Change these names ONLY if your training class order was different.
@@ -34,14 +32,14 @@ CLASS_NAMES = [
 @st.cache_resource
 def load_model():
 
-    # Load architecture
-    with open(ARCHITECTURE_PATH, "r") as f:
-        architecture = f.read()
+    model_url = "https://github.com/abuobaidahmim/guava-banana-resnet50/releases/download/v1.0.0/ResNet50_Guava_Banana_Best.h5"
 
-    model = tf.keras.models.model_from_json(architecture)
+    model_path = tf.keras.utils.get_file(
+        "ResNet50_Guava_Banana_Best.h5",
+        model_url
+    )
 
-    # Load trained weights
-    model.load_weights(WEIGHTS_PATH)
+    model = tf.keras.models.load_model(model_path)
 
     return model
 
