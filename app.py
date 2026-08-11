@@ -2,7 +2,6 @@ import streamlit as st
 import tensorflow as tf
 import numpy as np
 from PIL import Image
-import json
 import os
 
 # ============================================================
@@ -15,15 +14,13 @@ st.set_page_config(
     layout="centered"
 )
 
-
-# IMPORTANT:
-# Change these names ONLY if your training class order was different.
 CLASS_NAMES = [
     "ripe",
     "unripe",
     "spoiled"
 ]
 
+MODEL_PATH = "ResNet50_Guava_Banana_Best.h5"
 
 # ============================================================
 # LOAD MODEL
@@ -32,15 +29,14 @@ CLASS_NAMES = [
 @st.cache_resource
 def load_model():
 
-    model_url = "https://github.com/abuobaidahmim/guava-banana-resnet50/releases/download/v1.0.0/ResNet50_Guava_Banana_Best.h5"
-
-    model_path = tf.keras.utils.get_file(
-        "ResNet50_Guava_Banana_Best.h5",
-        model_url
-    )
+    if not os.path.exists(MODEL_PATH):
+        st.error(
+            f"Model file not found: {MODEL_PATH}"
+        )
+        st.stop()
 
     model = tf.keras.models.load_model(
-        model_path,
+        MODEL_PATH,
         compile=False
     )
 
@@ -48,7 +44,6 @@ def load_model():
 
 
 model = load_model()
-
 
 # ============================================================
 # PREPROCESS IMAGE
@@ -59,28 +54,33 @@ def preprocess_image(image):
     image = image.convert("RGB")
     image = image.resize((224, 224))
 
-    image_array = np.array(image, dtype=np.float32)
+    image_array = np.array(
+        image,
+        dtype=np.float32
+    )
 
-    # ResNet50 preprocessing
     image_array = tf.keras.applications.resnet50.preprocess_input(
         image_array
     )
 
-    image_array = np.expand_dims(image_array, axis=0)
+    image_array = np.expand_dims(
+        image_array,
+        axis=0
+    )
 
     return image_array
-
 
 # ============================================================
 # TITLE
 # ============================================================
 
-st.title("🍈🍌 Guava & Banana Freshness Classifier")
+st.title(
+    "🍈🍌 Guava & Banana Freshness Classifier"
+)
 
 st.write(
     "Upload a guava or banana image to predict its freshness condition."
 )
-
 
 # ============================================================
 # IMAGE UPLOAD
@@ -90,7 +90,6 @@ uploaded_file = st.file_uploader(
     "Upload an image",
     type=["jpg", "jpeg", "png"]
 )
-
 
 # ============================================================
 # PREDICTION
@@ -110,7 +109,9 @@ if uploaded_file is not None:
 
         with st.spinner("Analyzing image..."):
 
-            processed_image = preprocess_image(image)
+            processed_image = preprocess_image(
+                image
+            )
 
             predictions = model.predict(
                 processed_image,
@@ -121,7 +122,9 @@ if uploaded_file is not None:
                 np.argmax(predictions[0])
             )
 
-            predicted_class = CLASS_NAMES[predicted_index]
+            predicted_class = CLASS_NAMES[
+                predicted_index
+            ]
 
             confidence = float(
                 predictions[0][predicted_index]
@@ -135,7 +138,6 @@ if uploaded_file is not None:
             f"Confidence: {confidence:.2f}%"
         )
 
-        # Show probability for each class
         st.subheader("Class Probabilities")
 
         for i, class_name in enumerate(CLASS_NAMES):
@@ -152,7 +154,6 @@ if uploaded_file is not None:
             st.progress(
                 min(int(probability), 100)
             )
-
 
 # ============================================================
 # FOOTER
